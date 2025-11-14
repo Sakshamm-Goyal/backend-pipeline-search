@@ -24,6 +24,10 @@ Enterprise-grade NestJS authentication system with MongoDB, JWT, and OAuth (Goog
 - Argon2 for password hashing
 - class-validator for DTO validation
 - cookie-parser for HttpOnly cookies
+- Helmet for security headers
+- Pino for structured logging
+- Throttler for rate limiting
+- express-mongo-sanitize for NoSQL injection protection
 
 ## Getting Started
 
@@ -96,7 +100,7 @@ The API will be available at: `http://localhost:3000/api/v1`
 | POST | `/auth/register` | Register new user | No |
 | POST | `/auth/login` | Login with email/password | No |
 | POST | `/auth/refresh` | Refresh access token | No |
-| POST | `/auth/logout` | Logout user | No |
+| POST | `/auth/logout` | Logout user | Yes |
 | GET | `/auth/verify-email?token=xxx` | Verify email | No |
 | POST | `/auth/forgot-password` | Request password reset | No |
 | POST | `/auth/reset-password` | Reset password | No |
@@ -145,6 +149,25 @@ curl http://localhost:3000/api/v1/auth/me \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
 
+### Making State-Changing Requests (CSRF Protection)
+
+For POST, PUT, PATCH, DELETE requests, you need to include a CSRF token:
+
+1. **Get CSRF Token:** The token is automatically set in the `XSRF-TOKEN` cookie on GET requests
+2. **Include in Header:** Send the token in the `x-csrf-token` header
+
+```bash
+# Example: Update user profile
+curl -X PUT http://localhost:3000/api/v1/user/profile \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "x-csrf-token: YOUR_CSRF_TOKEN" \
+  -H "Content-Type: application/json" \
+  -b "XSRF-TOKEN=YOUR_CSRF_TOKEN" \
+  -d '{"firstName": "Jane"}'
+```
+
+**Note:** Public routes (login, register, etc.) are exempt from CSRF protection.
+
 ## Architecture
 
 ```
@@ -163,7 +186,11 @@ src/
 │   └── user/
 │       └── domain/         # User schema
 └── shared/
-    └── constants/          # DI tokens
+    ├── constants/          # DI tokens
+    ├── filters/            # Exception filters
+    ├── middleware/         # CSRF, request ID middleware
+    ├── services/           # Shared services (email, encryption)
+    └── health/             # Health check endpoints
 ```
 
 ## Security Features
@@ -178,6 +205,11 @@ src/
 - **Global Authentication:** All routes protected by default
 - **Input Validation:** class-validator with whitelist
 - **CORS:** Configured for frontend origin
+- **CSRF Protection:** Double-submit cookie pattern for state-changing requests
+- **Rate Limiting:** Throttler guard (10 requests/minute default, configurable per route)
+- **Security Headers:** Helmet.js with Content Security Policy
+- **NoSQL Injection Protection:** express-mongo-sanitize
+- **Request ID Tracking:** Unique request IDs for logging and tracing
 
 ## Development
 
@@ -192,9 +224,10 @@ Following Domain-Driven Design (DDD) principles:
 
 ### Adding a Protected Route
 
+Since JWT authentication is global, routes are protected by default. Just use the `@CurrentUser()` decorator:
+
 ```typescript
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from './modules/auth/infrastructure/guards/jwt-auth.guard';
+import { Controller, Get } from '@nestjs/common';
 import { CurrentUser } from './modules/auth/application/decorators/current-user.decorator';
 import { User } from './modules/user/domain/schemas/user.schema';
 
@@ -221,15 +254,19 @@ getPublicData() {
 
 ### Role-Based Access Control
 
-```typescript
-import { Roles } from './modules/auth/application/decorators/roles.decorator';
-import { RolesGuard } from './modules/auth/infrastructure/guards/roles.guard';
+Since both JWT and Roles guards are global, you only need to use the `@Roles()` decorator:
 
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('admin')
-@Get('admin-only')
-getAdminData() {
-  return { message: 'Admin only' };
+```typescript
+import { Controller, Get } from '@nestjs/common';
+import { Roles } from './modules/auth/application/decorators/roles.decorator';
+
+@Controller('admin')
+export class AdminController {
+  @Roles('admin')
+  @Get('only')
+  getAdminData() {
+    return { message: 'Admin only' };
+  }
 }
 ```
 
