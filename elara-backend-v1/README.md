@@ -1,98 +1,251 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Elara Backend v1
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Enterprise-grade NestJS authentication system with MongoDB, JWT, and OAuth (Google & Apple).
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Features
 
-## Description
+- **Email/Password Authentication** with Argon2id hashing
+- **JWT Authentication** with refresh token rotation
+- **OAuth Integration** (Google & Apple Sign-In)
+- **Email Verification** with secure tokens
+- **Password Reset** with time-limited tokens
+- **Account Linking** - Link multiple OAuth providers to one account
+- **Global JWT Guard** - Routes protected by default, use `@Public()` decorator to skip
+- **Role-Based Access Control** ready
+- **MongoDB** with Mongoose ODM
+- **TypeScript** with strict typing
+- **Security Best Practices** (HttpOnly cookies, CORS, validation)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Tech Stack
 
-## Project setup
+- NestJS 11.x
+- MongoDB with Mongoose
+- Passport (JWT, Local, Google OAuth20, Apple)
+- Argon2 for password hashing
+- class-validator for DTO validation
+- cookie-parser for HttpOnly cookies
 
-```bash
-$ pnpm install
-```
+## Getting Started
 
-## Compile and run the project
+### 1. Prerequisites
 
-```bash
-# development
-$ pnpm run start
+- Node.js 18+ and pnpm
+- MongoDB instance (local or cloud)
+- Google OAuth credentials (optional)
+- Apple Sign-In credentials (optional)
 
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
-```
-
-## Run tests
+### 2. Install Dependencies
 
 ```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+pnpm install
 ```
 
-## Deployment
+### 3. Environment Setup
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Copy `.env.example` to `.env`:
 
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+cp .env.example .env
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Update the following required variables:
 
-## Resources
+```env
+# Database
+MONGODB_URI=mongodb://localhost:27017/elara
 
-Check out a few resources that may come in handy when working with NestJS:
+# JWT Secrets (IMPORTANT: Change these!)
+JWT_ACCESS_SECRET=your-super-secret-access-token-min-32-chars
+JWT_REFRESH_SECRET=your-super-secret-refresh-token-min-32-chars
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+For OAuth (optional):
 
-## Support
+**Google OAuth:**
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a project and enable Google+ API
+3. Create OAuth 2.0 credentials
+4. Add authorized redirect URI: `http://localhost:3000/api/v1/auth/google/callback`
+5. Copy Client ID and Secret to `.env`
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+**Apple Sign-In:**
+1. Go to [Apple Developer](https://developer.apple.com/)
+2. Create an App ID and Service ID
+3. Generate a private key (.p8 file)
+4. Save the key file and add its path to `.env`
 
-## Stay in touch
+### 4. Run the Application
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```bash
+# Development
+pnpm run start:dev
+
+# Production
+pnpm run build
+pnpm run start:prod
+```
+
+The API will be available at: `http://localhost:3000/api/v1`
+
+## API Endpoints
+
+### Authentication
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/auth/register` | Register new user | No |
+| POST | `/auth/login` | Login with email/password | No |
+| POST | `/auth/refresh` | Refresh access token | No |
+| POST | `/auth/logout` | Logout user | No |
+| GET | `/auth/verify-email?token=xxx` | Verify email | No |
+| POST | `/auth/forgot-password` | Request password reset | No |
+| POST | `/auth/reset-password` | Reset password | No |
+| GET | `/auth/me` | Get current user | Yes |
+
+### OAuth
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/auth/google` | Initiate Google OAuth |
+| GET | `/auth/google/callback` | Google OAuth callback |
+| GET | `/auth/apple` | Initiate Apple Sign-In |
+| POST | `/auth/apple/callback` | Apple callback |
+| DELETE | `/auth/oauth/:provider` | Unlink OAuth provider |
+
+## Usage Examples
+
+### Register User
+
+```bash
+curl -X POST http://localhost:3000/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "SecurePass123!",
+    "firstName": "John",
+    "lastName": "Doe"
+  }'
+```
+
+### Login
+
+```bash
+curl -X POST http://localhost:3000/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "SecurePass123!"
+  }'
+```
+
+### Access Protected Route
+
+```bash
+curl http://localhost:3000/api/v1/auth/me \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+## Architecture
+
+```
+src/
+├── config/                  # Configuration files
+│   ├── database.config.ts
+│   ├── jwt.config.ts
+│   ├── oauth.config.ts
+│   └── mail.config.ts
+├── modules/
+│   ├── auth/
+│   │   ├── domain/         # Schemas, enums
+│   │   ├── application/    # Services, DTOs, interfaces
+│   │   ├── infrastructure/ # Repositories, strategies, guards
+│   │   └── presentation/   # Controllers
+│   └── user/
+│       └── domain/         # User schema
+└── shared/
+    └── constants/          # DI tokens
+```
+
+## Security Features
+
+- **Password Hashing:** Argon2id with 64MB memory cost
+- **JWT Tokens:** Separate access (15min) and refresh (7 days) tokens
+- **Token Rotation:** Refresh tokens are rotated on use
+- **HttpOnly Cookies:** Refresh tokens stored securely
+- **Email Verification:** Required before account activation (optional)
+- **Password Reset:** Time-limited tokens (1 hour)
+- **OAuth Account Linking:** Multiple providers per account
+- **Global Authentication:** All routes protected by default
+- **Input Validation:** class-validator with whitelist
+- **CORS:** Configured for frontend origin
+
+## Development
+
+### Project Structure
+
+Following Domain-Driven Design (DDD) principles:
+
+- **Domain Layer:** Schemas, entities, enums
+- **Application Layer:** Business logic, services, DTOs
+- **Infrastructure Layer:** External concerns (DB, OAuth, guards)
+- **Presentation Layer:** Controllers, HTTP handling
+
+### Adding a Protected Route
+
+```typescript
+import { Controller, Get, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from './modules/auth/infrastructure/guards/jwt-auth.guard';
+import { CurrentUser } from './modules/auth/application/decorators/current-user.decorator';
+import { User } from './modules/user/domain/schemas/user.schema';
+
+@Controller('example')
+export class ExampleController {
+  @Get()
+  getProtectedData(@CurrentUser() user: User) {
+    return { message: `Hello ${user.firstName}!` };
+  }
+}
+```
+
+### Making a Route Public
+
+```typescript
+import { Public } from './modules/auth/application/decorators/public.decorator';
+
+@Public()
+@Get('public')
+getPublicData() {
+  return { message: 'This route is public' };
+}
+```
+
+### Role-Based Access Control
+
+```typescript
+import { Roles } from './modules/auth/application/decorators/roles.decorator';
+import { RolesGuard } from './modules/auth/infrastructure/guards/roles.guard';
+
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('admin')
+@Get('admin-only')
+getAdminData() {
+  return { message: 'Admin only' };
+}
+```
+
+## Testing
+
+```bash
+# Unit tests
+pnpm run test
+
+# E2E tests
+pnpm run test:e2e
+
+# Test coverage
+pnpm run test:cov
+```
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+MIT
