@@ -93,6 +93,23 @@ export class User extends Document {
   @Prop()
   phoneNumber?: string;
 
+  // Onboarding Status
+  @Prop({
+    type: {
+      completed: { type: Boolean, default: false },
+      currentStep: { type: Number, default: 0 }, // 0-9
+      startedAt: { type: Date },
+      completedAt: { type: Date },
+    },
+    default: { completed: false, currentStep: 0 },
+  })
+  onboardingStatus!: {
+    completed: boolean;
+    currentStep: number;
+    startedAt?: Date;
+    completedAt?: Date;
+  };
+
   // Tracking
   @Prop()
   lastLoginAt?: Date;
@@ -111,6 +128,7 @@ export const UserSchema = SchemaFactory.createForClass(User);
 // Note: email unique index is already defined via @Prop({ unique: true }) on line 49
 UserSchema.index({ 'providers.provider': 1, 'providers.providerId': 1 });
 UserSchema.index({ createdAt: -1 });
+UserSchema.index({ 'onboardingStatus.completed': 1 });
 
 // Virtual for full name
 UserSchema.virtual('fullName').get(function (this: User) {

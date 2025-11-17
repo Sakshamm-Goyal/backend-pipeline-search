@@ -1,0 +1,17 @@
+export enum Occasion {
+  CASUAL = 'casual',
+  FORMAL = 'formal',
+  SEMI_FORMAL = 'semi-formal',
+  BUSINESS = 'business',
+  PARTY = 'party',
+  DATE_NIGHT = 'date-night',
+  WEDDING = 'wedding',
+  OFFICE = 'office',
+  WORKOUT = 'workout',
+  TRAVEL = 'travel',
+  BEACH = 'beach',
+  BRUNCH = 'brunch',
+  EVENING = 'evening',
+  OUTDOOR = 'outdoor',
+  LOUNGE = 'lounge',
+}

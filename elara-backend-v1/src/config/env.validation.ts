@@ -35,4 +35,10 @@ export const validationSchema = Joi.object({
   EMAIL_USER: Joi.string().optional(),
   EMAIL_PASSWORD: Joi.string().optional(),
   EMAIL_FROM: Joi.string().email().optional(),
+
+  // Google Cloud Storage
+  GCP_PROJECT_ID: Joi.string().optional(),
+  GCP_BUCKET_NAME: Joi.string().optional(),
+  GCP_KEY_FILE: Joi.string().optional(), // Path to service account key JSON
+  GCS_SIGNED_URL_EXPIRATION: Joi.number().default(3600), // 1 hour in seconds
 });

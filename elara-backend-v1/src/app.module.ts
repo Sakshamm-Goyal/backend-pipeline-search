@@ -8,6 +8,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { HealthModule } from './shared/health/health.module';
+import { OnboardingModule } from './modules/onboarding/onboarding.module';
+import { WardrobeModule } from './modules/wardrobe/wardrobe.module';
+import { OutfitsModule } from './modules/outfits/outfits.module';
+import { SharedModule } from './modules/shared/shared.module';
 import { JwtAuthGuard } from './modules/auth/infrastructure/guards/jwt-auth-global.guard';
 import { RolesGuard } from './modules/auth/infrastructure/guards/roles.guard';
 import { RequestIdMiddleware } from './shared/middleware/request-id.middleware';
@@ -97,6 +101,10 @@ import { validationSchema } from './config/env.validation';
     // Feature Modules
     AuthModule,
     HealthModule,
+    SharedModule,
+    OnboardingModule,
+    WardrobeModule,
+    OutfitsModule,
   ],
   controllers: [AppController],
   providers: [

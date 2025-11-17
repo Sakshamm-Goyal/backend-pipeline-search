@@ -16,6 +16,7 @@ import {
 import { Throttle } from '@nestjs/throttler';
 import type { Request, Response } from 'express';
 import { AuthService } from '../../application/services/auth.service';
+import { OAuthService } from '../../application/services/oauth.service';
 import { RegisterDto } from '../../application/dto/register.dto';
 import { LoginDto } from '../../application/dto/login.dto';
 import { ForgotPasswordDto } from '../../application/dto/forgot-password.dto';
@@ -35,6 +36,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly tokenService: TokenService,
+    private readonly oauthService: OAuthService,
   ) {}
 
   @Public()
@@ -271,10 +273,10 @@ export class AuthController {
     @Param('provider') provider: AuthProvider,
     @CurrentUser() user: User,
   ) {
-    await this.authService.validateOAuthUser({
+    await this.oauthService.unlinkProvider(
+      (user._id as any).toString(),
       provider,
-      userId: (user._id as any).toString(),
-    });
+    );
     return { message: `${provider} account unlinked successfully` };
   }
 
