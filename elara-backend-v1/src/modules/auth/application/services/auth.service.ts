@@ -34,13 +34,23 @@ export class AuthService {
    * SECURITY: Returns same message regardless of whether email exists to prevent enumeration
    */
   async register(dto: RegisterDto): Promise<{ message: string }> {
+    const isDevelopment = process.env.NODE_ENV === 'development';
+
     // Check if user already exists
     const existingUser = await this.userRepository.findByEmail(dto.email);
 
     // SECURITY FIX: Return same message to prevent user enumeration
     if (existingUser) {
-      // Don't reveal that user exists - send notification to existing email
-      await this.emailService.sendAccountExistsEmail(dto.email);
+      // Don't reveal that user exists - send notification to existing email (skip in dev if email fails)
+      if (!isDevelopment) {
+        await this.emailService.sendAccountExistsEmail(dto.email);
+      } else {
+        try {
+          await this.emailService.sendAccountExistsEmail(dto.email);
+        } catch (error) {
+          // Silently ignore email errors in development
+        }
+      }
       return {
         message: 'Registration successful. Please check your email to verify your account.',
       };
@@ -52,21 +62,34 @@ export class AuthService {
     // Generate email verification token
     const emailVerificationToken = randomBytes(32).toString('hex');
 
+    // In development mode, auto-verify email
+    const emailVerified = isDevelopment;
+
     // Create user
     await this.userRepository.create({
       email: dto.email,
       password: hashedPassword,
       firstName: dto.firstName,
       lastName: dto.lastName,
-      emailVerificationToken,
-      emailVerified: false,
+      emailVerificationToken: isDevelopment ? undefined : emailVerificationToken,
+      emailVerified,
     } as any);
 
-    // Send verification email
-    await this.emailService.sendVerificationEmail(dto.email, emailVerificationToken);
+    // Send verification email (skip in development or handle errors gracefully)
+    if (!isDevelopment) {
+      await this.emailService.sendVerificationEmail(dto.email, emailVerificationToken);
+    } else {
+      try {
+        await this.emailService.sendVerificationEmail(dto.email, emailVerificationToken);
+      } catch (error) {
+        // Silently ignore email errors in development - user is already verified
+      }
+    }
 
     return {
-      message: 'Registration successful. Please check your email to verify your account.',
+      message: isDevelopment
+        ? 'Registration successful. Email auto-verified in development mode.'
+        : 'Registration successful. Please check your email to verify your account.',
     };
   }
 
@@ -78,11 +101,13 @@ export class AuthService {
     ipAddress: string,
     userAgent: string,
   ): Promise<AuthResponseDto> {
+    const isDevelopment = process.env.NODE_ENV === 'development';
+
     // Validate user credentials
     const user = await this.validateUser(dto.email, dto.password);
 
-    // Check if email is verified (optional - can be disabled for development)
-    if (!user.emailVerified) {
+    // Check if email is verified (skip in development mode)
+    if (!user.emailVerified && !isDevelopment) {
       throw new UnauthorizedException('Please verify your email before logging in');
     }
 

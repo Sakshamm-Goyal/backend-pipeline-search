@@ -26,6 +26,7 @@ export class CsrfMiddleware implements NestMiddleware {
     }
 
     // Skip CSRF check for public auth routes (initial login/register)
+    // Also skip for API routes that are already protected by JWT
     const publicRoutes = [
       '/auth/login',
       '/auth/register',
@@ -35,6 +36,10 @@ export class CsrfMiddleware implements NestMiddleware {
       '/auth/verify-email',
       '/auth/forgot-password',
       '/auth/reset-password',
+      '/auth/logout',
+      // Chat routes - protected by JWT, CSRF not needed for API calls
+      '/chat/message',
+      '/chat/conversations',
     ];
 
     // In NestJS with global prefix, req.path doesn't include the prefix

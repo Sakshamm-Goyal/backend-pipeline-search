@@ -69,7 +69,7 @@ For OAuth (optional):
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Create a project and enable Google+ API
 3. Create OAuth 2.0 credentials
-4. Add authorized redirect URI: `http://localhost:3000/api/v1/auth/google/callback`
+4. Add authorized redirect URI: `http://localhost:5000/api/v1/auth/google/callback`
 5. Copy Client ID and Secret to `.env`
 
 **Apple Sign-In:**
@@ -89,7 +89,7 @@ pnpm run build
 pnpm run start:prod
 ```
 
-The API will be available at: `http://localhost:3000/api/v1`
+The API will be available at: `http://localhost:5000/api/v1`
 
 ## API Endpoints
 
@@ -121,7 +121,7 @@ The API will be available at: `http://localhost:3000/api/v1`
 ### Register User
 
 ```bash
-curl -X POST http://localhost:3000/api/v1/auth/register \
+curl -X POST http://localhost:5000/api/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "email": "user@example.com",
@@ -134,7 +134,7 @@ curl -X POST http://localhost:3000/api/v1/auth/register \
 ### Login
 
 ```bash
-curl -X POST http://localhost:3000/api/v1/auth/login \
+curl -X POST http://localhost:5000/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "user@example.com",
@@ -145,7 +145,7 @@ curl -X POST http://localhost:3000/api/v1/auth/login \
 ### Access Protected Route
 
 ```bash
-curl http://localhost:3000/api/v1/auth/me \
+curl http://localhost:5000/api/v1/auth/me \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
 
@@ -158,7 +158,7 @@ For POST, PUT, PATCH, DELETE requests, you need to include a CSRF token:
 
 ```bash
 # Example: Update user profile
-curl -X PUT http://localhost:3000/api/v1/user/profile \
+curl -X PUT http://localhost:5000/api/v1/user/profile \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
   -H "x-csrf-token: YOUR_CSRF_TOKEN" \
   -H "Content-Type: application/json" \

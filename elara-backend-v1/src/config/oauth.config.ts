@@ -30,13 +30,13 @@ export default registerAs('oauth', () => ({
   google: {
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: process.env.GOOGLE_CALLBACK_URL || 'http://localhost:3000/api/v1/auth/google/callback',
+    callbackURL: process.env.GOOGLE_CALLBACK_URL || 'http://localhost:5000/api/v1/auth/google/callback',
   },
   apple: {
     clientID: process.env.APPLE_CLIENT_ID,
     teamID: process.env.APPLE_TEAM_ID,
     keyID: process.env.APPLE_KEY_ID,
     privateKey: getApplePrivateKey(),
-    callbackURL: process.env.APPLE_CALLBACK_URL || 'http://localhost:3000/api/v1/auth/apple/callback',
+    callbackURL: process.env.APPLE_CALLBACK_URL || 'http://localhost:5000/api/v1/auth/apple/callback',
   },
 }));

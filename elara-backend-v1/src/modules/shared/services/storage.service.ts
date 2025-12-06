@@ -66,7 +66,7 @@ export class StorageService {
       });
 
       return new Promise((resolve, reject) => {
-        blobStream.on('error', (err) => {
+        blobStream.on('error', (err: Error) => {
           this.logger.error(`Upload error: ${err.message}`);
           reject(err);
         });
@@ -112,7 +112,7 @@ export class StorageService {
       });
 
       return new Promise((resolve, reject) => {
-        blobStream.on('error', (err) => {
+        blobStream.on('error', (err: Error) => {
           this.logger.error(`Upload error: ${err.message}`);
           reject(err);
         });
@@ -166,7 +166,7 @@ export class StorageService {
   async getSignedUrl(fileKey: string): Promise<string> {
     if (this.useLocalStorage) {
       // For local storage, return the direct URL
-      return `http://localhost:${this.configService.get('PORT', 3000)}/uploads/${fileKey}`;
+      return `http://localhost:${this.configService.get('PORT', 6900)}/uploads/${fileKey}`;
     }
 
     try {
@@ -234,7 +234,7 @@ export class StorageService {
       await writeFile(fullPath, buffer);
 
       // Generate local URL (accessible via static file serving)
-      const url = `http://localhost:${this.configService.get('PORT', 3000)}/uploads/${destination}`;
+      const url = `http://localhost:${this.configService.get('PORT', 5000)}/uploads/${destination}`;
 
       this.logger.log(`File saved locally: ${fullPath}`);
       return { url, key: destination };

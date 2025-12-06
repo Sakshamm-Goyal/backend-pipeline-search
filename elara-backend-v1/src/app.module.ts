@@ -2,6 +2,7 @@ import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ScheduleModule } from '@nestjs/schedule';
 import { LoggerModule } from 'nestjs-pino';
 import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
@@ -12,6 +13,8 @@ import { OnboardingModule } from './modules/onboarding/onboarding.module';
 import { WardrobeModule } from './modules/wardrobe/wardrobe.module';
 import { OutfitsModule } from './modules/outfits/outfits.module';
 import { SharedModule } from './modules/shared/shared.module';
+import { PipelineModule } from './modules/pipeline/pipeline.module';
+import { ChatModule } from './modules/chat/chat.module';
 import { JwtAuthGuard } from './modules/auth/infrastructure/guards/jwt-auth-global.guard';
 import { RolesGuard } from './modules/auth/infrastructure/guards/roles.guard';
 import { RequestIdMiddleware } from './shared/middleware/request-id.middleware';
@@ -22,6 +25,9 @@ import databaseConfig from './config/database.config';
 import jwtConfig from './config/jwt.config';
 import oauthConfig from './config/oauth.config';
 import mailConfig from './config/mail.config';
+import llmConfig from './config/llm.config';
+import scrapersConfig from './config/scrapers.config';
+import cacheConfig from './config/cache.config';
 import { validationSchema } from './config/env.validation';
 
 @Module({
@@ -29,7 +35,15 @@ import { validationSchema } from './config/env.validation';
     // Configuration
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [databaseConfig, jwtConfig, oauthConfig, mailConfig],
+      load: [
+        databaseConfig,
+        jwtConfig,
+        oauthConfig,
+        mailConfig,
+        llmConfig,
+        scrapersConfig,
+        cacheConfig,
+      ],
       envFilePath: ['.env.local', '.env'],
       validationSchema,
       validationOptions: {
@@ -82,6 +96,9 @@ import { validationSchema } from './config/env.validation';
       },
     ]),
 
+    // Scheduled Tasks (cron jobs)
+    ScheduleModule.forRoot(),
+
     // Database
     MongooseModule.forRootAsync({
       inject: [databaseConfig.KEY],
@@ -105,6 +122,8 @@ import { validationSchema } from './config/env.validation';
     OnboardingModule,
     WardrobeModule,
     OutfitsModule,
+    PipelineModule, // AI Pipeline Module
+    ChatModule, // WebSocket Chat Module
   ],
   controllers: [AppController],
   providers: [

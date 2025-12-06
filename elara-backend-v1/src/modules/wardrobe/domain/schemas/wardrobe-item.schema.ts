@@ -58,6 +58,25 @@ export class ImageProcessing {
   processedAt?: Date;
 }
 
+// Sub-document for vector embedding (for semantic search and outfit compatibility)
+@Schema({ _id: false })
+export class WardrobeEmbedding {
+  @Prop({ type: [Number], default: [] })
+  vector!: number[]; // 1536 dimensions (OpenAI text-embedding-3-small)
+
+  @Prop()
+  model?: string; // e.g., 'text-embedding-3-small'
+
+  @Prop()
+  generatedAt?: Date;
+
+  @Prop()
+  inputText?: string; // Text used for embedding (truncated, for debugging)
+
+  @Prop({ type: [Number], default: [] })
+  imageVector?: number[]; // Optional: CLIP-based image embedding for visual similarity
+}
+
 // Main WardrobeItem Schema
 @Schema({
   timestamps: true,
@@ -111,6 +130,10 @@ export class WardrobeItem extends Document {
   // AI Analysis (optional until AI is integrated)
   @Prop({ type: AIAnalysis })
   aiAnalysis?: AIAnalysis;
+
+  // Vector embedding for semantic search and outfit compatibility
+  @Prop({ type: WardrobeEmbedding })
+  embedding?: WardrobeEmbedding;
 
   // Image processing status
   @Prop({ type: ImageProcessing, required: true })
@@ -180,3 +203,6 @@ WardrobeItemSchema.index({ brand: 1 });
 WardrobeItemSchema.index({ userTags: 1 });
 WardrobeItemSchema.index({ lastWornAt: -1 });
 WardrobeItemSchema.index({ 'imageProcessing.status': 1 });
+
+// Index for finding items without embeddings (for background processing)
+WardrobeItemSchema.index({ isDeleted: 1, 'embedding.vector': 1 });

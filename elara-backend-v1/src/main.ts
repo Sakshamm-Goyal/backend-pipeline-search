@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -55,7 +56,7 @@ async function bootstrap() {
   // CORS - Enable Cross-Origin Resource Sharing
   const allowedOrigins = process.env.CORS_ORIGINS
     ? process.env.CORS_ORIGINS.split(',').map((origin) => origin.trim())
-    : [process.env.FRONTEND_URL || 'http://localhost:3001'];
+    : [process.env.FRONTEND_URL || 'http://localhost:6900'];
 
   app.enableCors({
     origin: (
@@ -86,11 +87,38 @@ async function bootstrap() {
   // Global prefix
   app.setGlobalPrefix('api/v1');
 
+  // Swagger API Documentation
+  const config = new DocumentBuilder()
+    .setTitle('Elara Fashion AI API')
+    .setDescription(
+      'AI-powered fashion recommendation and outfit generation API. ' +
+      'Features intelligent product search, outfit creation, and conversational chat interface.',
+    )
+    .setVersion('1.0')
+    .addTag('Chat', 'Conversational AI chat endpoints')
+    .addTag('Search', 'Product search endpoints')
+    .addTag('Outfits', 'Outfit generation endpoints')
+    .addBearerAuth()
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+      tagsSorter: 'alpha',
+      operationsSorter: 'alpha',
+    },
+    customSiteTitle: 'Elara API Docs',
+  });
+
+  logger.log('Swagger documentation available at /api/docs');
+
   // Enable graceful shutdown
   app.enableShutdownHooks();
 
-  const port = process.env.PORT ?? 3000;
+  const port = process.env.PORT ?? 6900;
   await app.listen(port);
   logger.log(`Application is running on: http://localhost:${port}`);
+  logger.log(`API Documentation: http://localhost:${port}/api/docs`);
 }
 bootstrap();
