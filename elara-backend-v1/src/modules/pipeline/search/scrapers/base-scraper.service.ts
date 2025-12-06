@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common';
-import { chromium, Browser, Page, BrowserContext } from 'playwright';
+import { chromium, Browser, Page, BrowserContext, Route } from 'playwright';
 import { BaseSearchSource } from '../sources/search-source.interface';
 import { Product, SearchSource } from '../dto/product.dto';
 import { SearchQuery } from '../dto/search-query.dto';
@@ -99,7 +99,7 @@ export abstract class BaseScraperService extends BaseSearchSource {
     });
 
     // Block unnecessary resources for faster scraping
-    await context.route('**/*', (route) => {
+    await context.route('**/*', (route: Route) => {
       const resourceType = route.request().resourceType();
       if (['image', 'stylesheet', 'font', 'media'].includes(resourceType)) {
         route.abort();
